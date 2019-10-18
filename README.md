@@ -6,9 +6,9 @@
 ### Стек технологий:
 Для этого предполагается использование сл стек технологий:
 
-* > Linux (Ubuntu)
-* > Python, pip, imutils, numpy и т.д.
-* > OpenCV (для определения результатов)
+* Linux (Ubuntu)
+* Python, pip, imutils, numpy и т.д.
+* OpenCV (для определения результатов)
 
 ### Image processing pipeline. Процесс обработки изображений.
 
