@@ -1,0 +1,61 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+import tensorflow as tf
+from tensorflow.keras import layers, models
+import cv2
+import numpy as np
+from sklearn.metrics import accuracy_score
+
+
+digits = cv2.imread("digits.png", cv2.IMREAD_GRAYSCALE)
+test_digits = cv2.imread("test_digits.png", cv2.IMREAD_GRAYSCALE)
+rows = np.vsplit(digits, 50)
+cells = []
+for row in rows:
+    row_cells = np.hsplit(row, 50)
+    for cell in row_cells:
+        cells.append(cell)
+cells = np.array(cells, dtype=np.float32)
+cells = cells[:, :, :,None]
+print(cells.shape)
+
+k = np.arange(10)
+cells_labels = np.repeat(k, 250)
+test_cells_labels = np.repeat(k, 5)
+
+
+test_digits = np.vsplit(test_digits, 50)
+test_cells = []
+for d in test_digits:
+    test_cells.append(d)
+test_cells = np.array(test_cells, dtype=np.float32)
+test_cells = test_cells[:, :, :, None]
+print(test_cells.shape)
+
+# Normalization
+cells, test_cells = cells / 255.0, test_cells / 255.0
+
+#CNN
+model1 = models.Sequential()
+model1.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(20, 20, 1)))
+model1.add(layers.MaxPooling2D((2, 2)))
+model1.add(layers.Conv2D(64, (3, 3), activation='relu'))
+model1.add(layers.MaxPooling2D((2, 2)))
+model1.add(layers.Conv2D(64, (3, 3), activation='relu'))
+
+model1.add(layers.Flatten())
+model1.add(layers.Dense(80, activation='relu'))
+model1.add(layers.Dense(10, activation='softmax'))
+model1.summary()
+
+model1.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+model1.fit(cells, cells_labels, shuffle=True, epochs=20)
+
+test_loss, test_acc = model1.evaluate(test_cells, test_cells_labels)
+
+print(test_acc, "Accuracy")
+result = model1.predict(test_cells)
+print(np.argmax(result, axis=1))
+print("SKlearn_accuracy:", accuracy_score(np.argmax(result, axis=1), test_cells_labels))
+
